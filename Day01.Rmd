@@ -1,0 +1,62 @@
+---
+title: "AoC 2024 - Day 1"
+author: "Paige Remde"
+date: "2024-12-01"
+output: html_document
+---
+
+```{r, message = FALSE, warning = FALSE}
+
+#Part 1----
+
+library(tidyverse)
+
+#Read input
+Day1input <- read.delim("day01.txt", sep="", header=FALSE) %>%
+  rename(List1 = V1, List2 = V2)
+
+#Sort each list and give an order ID
+List1_df <- Day1input %>%
+  select(List1) %>%
+  arrange(List1) %>%
+  mutate(Order = row_number())
+
+List2_df <- Day1input %>%
+  select(List2) %>%
+  arrange(List2) %>%
+  mutate(Order = row_number())
+  
+#Recombine lists to compare the two values in the same order
+Both_lists <- List1_df %>%
+  left_join(.,List2_df) %>%
+  mutate(Distance = abs(List1 - List2))
+
+Answer1 <- sum(Both_lists$Distance)
+Answer1
+
+```
+
+```{r}
+
+#Part 2----
+
+Similarity <- Day1input %>%
+  select(List1) %>%
+  mutate(Freq = NA)
+
+#Check the frequency of value i from list 1 in list 2
+for (i in 1:nrow(Similarity)){
+  n <- length(which(List2_df$List2 == (Similarity$List1[i])))
+  #print(n)
+  #print(List1_df$List1[i])
+  Similarity$Freq[i] <- n
+}
+
+#Calculate score
+Similarity <- Similarity %>%
+  mutate(Score = Freq * List1)
+  
+Answer2 <- sum(Similarity$Score)
+Answer2
+
+```
