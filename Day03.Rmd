@@ -1,0 +1,33 @@
+---
+title: "AoC 2024 - Day 3"
+author: "Paige Remde"
+date: "2024-12-03"
+output: html_document
+---
+
+```{r, message = FALSE, warning = FALSE}
+
+#Part 1----
+
+library(tidyverse)
+
+#Read input
+Day3input <- read_file("day03.txt")
+
+Muls <- Day3input %>%
+  #Extract instances of mul(#,#)
+  str_extract_all(., "(mul\\(\\d{1,3},\\d{1,3}\\))") %>%
+  map_df(~as.data.frame(.)) %>%
+  rename(., "Mult_string" = `.`) %>%
+  #Extract number values
+  mutate(Values = str_extract_all(Mult_string, "(\\d{1,3})")) %>%
+  #Unnest into columns and multiply
+  unnest_wider(Values, names_sep = "") %>%
+  mutate(V1 = as.numeric(Values1), V2 = as.numeric(Values2)) %>%
+  mutate(Product = V1 * V2)
+
+
+Answer <- sum(Muls$Product)
+Answer
+
+```
