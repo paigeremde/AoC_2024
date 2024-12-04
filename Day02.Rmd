@@ -1,0 +1,36 @@
+---
+title: "AoC 2024 - Day 2"
+author: "Paige Remde"
+date: "2024-12-02"
+output: html_document
+---
+
+```{r, message = FALSE, warning = FALSE}
+
+#Part 1----
+
+library(tidyverse)
+
+#Read input
+Day2input <- read_lines("day02.txt") %>%
+  strsplit(" ") %>%
+  lapply(as.numeric)
+
+#Create function to check safety
+Safety <- function(Levels) {
+  #Find the differences between levels
+  Difference <- diff(Levels)
+  #Set as safe if all are positive or negative and all differences are between 1 and 3
+   if ((all(Difference > 0) | all(Difference < 0)) && (all(between(abs(Difference), 1,3)))){
+    Safe <- 1
+   } 
+  else {
+    Safe <- 0
+  return(Safe)
+  }
+}
+
+Result <- lapply(Day2input, Safety)
+Answer <- sum(unlist(Result))
+
+```
