@@ -1,0 +1,65 @@
+---
+title: "AoC 2024 - Day 5"
+author: "Paige Remde"
+date: "2024-12-05"
+output: html_document
+---
+
+```{r, message = FALSE, warning = FALSE}
+
+#Part 1----
+
+library(tidyverse)
+
+#Read in rules and updates separately
+Rules <- as.tibble(read_lines("day05.txt", n_max = 1176)) %>%
+  separate(value, into = c("Before", "After"))
+
+Updates <- read_lines("day05.txt", skip = 1177) %>%
+  strsplit(., "\\s+") %>%
+  unlist() %>%
+  strsplit(",")
+
+Correct <- c()
+MiddleCorrect <- c()
+
+#For every update
+for (i in 1:length(Updates)) {
+  updatelist <- Updates[[i]]
+  n <- length(updatelist)
+  #for every page number listed in the update
+  for (j in 1:n) {
+    #Create a df of every page number that should come after this page from rules
+    jRules_after <- Rules %>% filter(Before == updatelist[j])
+    #Create a vector of all page numbers that come after this page
+    Afterj <- updatelist[j+1:n] %>% na.omit()
+    #Create a df of every page number that should come before this page from rules
+    jRules_before <- Rules %>% filter(After == updatelist[j])
+    #Create a vector of all page numbers that come before this page
+    Beforej <- updatelist[1:j-1] %>% na.omit()
+    
+    #if any pages printed before are supposed to be printed after, set as false
+    if (any(Beforej %in% jRules_after$After)) {
+      Correct <- c(Correct, FALSE)
+    }
+    #if any pages printed after are supposed to be printed before, set as false
+    if (any(Afterj %in% jRules_before$Before)) {
+      Correct <-c(Correct, FALSE)
+    }
+    #if none of the above (all pages are correct) set as true
+    else{
+      Correct <- c(Correct, TRUE)
+    }
+  }
+  #if all are true, select the middle number
+  if (all(Correct)) {
+    MiddleVal <- updatelist[ceiling(length(updatelist)/2)]
+    MiddleCorrect <- c(MiddleCorrect, MiddleVal)
+  }
+  Correct <- c()
+}
+
+Answer <- sum(as.numeric(MiddleCorrect))
+Answer
+
+```
