@@ -1,0 +1,69 @@
+---
+title: "AoC 2024 - Day 6"
+author: "Paige Remde"
+date: "2024-12-06"
+output: html_document
+---
+
+```{r, message = FALSE, warning = FALSE}
+
+#Part 1----
+
+library(tidyverse)
+
+#Read input and add padding to sides to better know when loop ends
+Day6input <- read.fwf("day06.txt", widths=rep(1,130), comment.char = "") %>%
+  add_row(.before = 1) %>%
+  add_row(.after = nrow(.)) %>%
+  add_column(paddingend = NA) %>%
+  add_column(paddingstart = NA, .before = 1) %>%
+  mutate_all(~replace(., is.na(.), 0))
+
+#Set starting location and direction
+Location <- which(Day6input == "^", arr.ind=TRUE) %>% 
+  as.numeric(as.vector(.[1, ]))
+
+Direction <- "N"
+
+#Function to advance to next space depending on cardinal direction
+advance <- function(Direction) {
+  case_when(Direction == "N" ~ c(Location[1] -1, Location[2]),
+            Direction == "S" ~ c(Location[1] +1, Location[2]),
+            Direction == "W" ~ c(Location[1], Location[2] -1),
+            Direction == "E" ~ c(Location[1], Location[2] +1))
+}
+
+#Function to turn 90 degrees right based on cardinal direction
+rotate <- function(Direction) {
+  case_when(Direction == "N" ~ "E",
+            Direction == "S" ~ "W",
+            Direction == "W" ~ "N",
+            Direction == "E" ~ "S")
+}
+
+#Initialize
+Spaces_visited <- 1
+Visited <- paste(Location[1],Location[2])
+
+#While inside the area
+while (Day6input[Location[1], Location[2]] != "0"){
+  Space <- Day6input[Location[1], Location[2]]
+  Next_loc <- advance(Direction)
+  Next_space <- Day6input[Next_loc[1], Next_loc[2]]
+  #Check if next space is an obstacle
+  if (Next_space == "#") {
+    Direction <- rotate(Direction)
+  }
+  #If not obstacle, set next location as the new location and add location information to a vector
+  else {
+    Visited <- c(Visited, paste(Location[1],Location[2]))
+    Location <- Next_loc
+    
+  }
+}
+
+#Find length of the vector of all unique locations visited
+Answer <- length(unique(Visited))
+Answer
+
+```
