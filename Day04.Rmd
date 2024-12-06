@@ -1,0 +1,109 @@
+---
+title: "AoC 2024 - Day 4"
+author: "Paige Remde"
+date: "2024-12-04"
+output: html_document
+---
+
+```{r, message = FALSE, warning = FALSE}
+
+#Part 1----
+
+library(tidyverse)
+
+Day4input <- read.fwf("day04.txt", widths=rep(1,140), comment.char = "") %>%
+  add_row(.before = 1) %>%
+  add_row(.after = nrow(.)) %>%
+  add_column(paddingend = NA) %>%
+  add_column(paddingstart = NA, .before = 1) %>%
+  mutate_all(~replace(., is.na(.), 0))
+
+Diagonals <- 0
+Horizontals <- 0
+Verticals <- 0
+
+for (row in 1:nrow(Day4input)) {
+  #Find every horizontal instance of XMAS or SAMX
+  Horizontals <- Horizontals + str_count(paste0(Day4input[row, ], collapse = ""), "XMAS")
+  Horizontals <- Horizontals + str_count(paste0(Day4input[row, ], collapse = ""), "SAMX")
+  for (column in 1:length(Day4input)) {
+    if (row == 1){
+      #(only for one row) find every vertical instance of XMAS or SAMX
+      Verticals <- Verticals + str_count(paste0(Day4input[,column], collapse = ""), "XMAS")
+      Verticals <- Verticals + str_count(paste0(Day4input[,column], collapse = ""), "SAMX")
+    }
+    Current <- Day4input[row,column]
+    #going by row and then column, find an "X"
+    if (Current == "X"){
+      X_row <- row
+      X_col <- column
+      #Check all corners for diagonal matches
+      #Check SE
+      if (Day4input[X_row+1,X_col+1] == "M" && Day4input[X_row+2,X_col+2] == "A" && Day4input[X_row+3,X_col+3] == "S"){
+        Diagonals <- Diagonals + 1
+      }
+      #Check NE
+      if (Day4input[X_row-1,X_col+1] == "M" && Day4input[X_row-2,X_col+2] == "A" && Day4input[X_row-3,X_col+3] == "S"){
+        Diagonals <- Diagonals + 1
+      }
+      #Check SW
+      if (Day4input[X_row+1,X_col-1] == "M" && Day4input[X_row+2,X_col-2] == "A" && Day4input[X_row+3,X_col-3] == "S"){
+        Diagonals <- Diagonals + 1
+      }
+      #Check NW
+      if (Day4input[X_row-1,X_col-1] == "M" && Day4input[X_row-2,X_col-2] == "A" && Day4input[X_row-3,X_col-3] == "S"){
+        Diagonals <- Diagonals + 1
+      }
+    }
+  }
+}
+
+
+Answer <- Horizontals + Verticals + Diagonals
+Answer
+    
+```
+
+
+```{r}
+
+#Part 2----
+
+Xmas <- 0
+
+for (row in 1:nrow(Day4input)) {
+  for (column in 1:length(Day4input)) {
+    Current <- Day4input[row,column]
+    SW_NE <- 0
+    SE_NW <- 0
+    #going by row and then column, find an "A"
+    if (Current == "A"){
+      A_row <- row
+      A_col <- column
+      #Check both directions the x can be in, set value to 1 if found
+      #Check SE to NW
+      if ((Day4input[A_row+1,A_col+1] == "M" && Day4input[A_row-1,A_col-1] == "S") || (Day4input[A_row+1,A_col+1] == "S" && Day4input[A_row-1,A_col-1] == "M")){
+        SE_NW <- 1
+      }
+      else{
+        SE_NW <- 0
+      }
+      if ((Day4input[A_row+1,A_col-1] == "M" && Day4input[A_row-1,A_col+1] == "S") || (Day4input[A_row+1,A_col-1] == "S" && Day4input[A_row-1,A_col+1] == "M")){
+        SW_NE <- 1
+      }
+      else{
+        SW_NE <- 0
+      }
+      #if both directions of the x is present, count up
+      if (SE_NW == 1 && SW_NE == 1){
+        Xmas <- Xmas +1
+      }
+    }
+  }
+}
+
+Xmas
+
+
+```
+
