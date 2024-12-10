@@ -1,0 +1,58 @@
+---
+title: "AoC 2024 - Day 7"
+author: "Paige Remde"
+date: "2024-12-09"
+output: html_document
+---
+
+```{r, message = FALSE, warning = FALSE}
+
+#Part 1----
+
+library(tidyverse)
+
+Day7input <- as.tibble(read_lines("day07.txt")) %>%
+  separate(value, into = c("TestVal", "Numbers"), sep = ":\\s") %>%
+  mutate(Numbers = lapply(strsplit(Numbers, "\\s+"), as.numeric))
+
+testOperators <- function(Total, numbers) {
+  n <- length(numbers)
+  totals <- c()
+
+  #Create matrix for all combinations of * or +
+  matrix <- expand.grid(replicate(n - 1, c("*", "+"), simplify = FALSE))
+
+  for (row in 1:nrow(matrix)) {
+    operations <- matrix[row, ]
+    temp_numbers <- numbers
+
+    #Perform each operation
+    for (i in 1:length(operations)) {
+      op <- operations[i]
+      temp_numbers[1:2] <- if (op == "+") {
+        temp_numbers[1] + temp_numbers[2]
+      } else {
+        temp_numbers[1] * temp_numbers[2]
+      }
+      temp_numbers <- temp_numbers[-2]
+    }
+
+    totals <- c(totals, temp_numbers)
+  }
+  
+  #Check if expected total is in the list of options
+  if (Total %in% totals) {
+    return(TRUE)
+  } else {
+    return("ERROR")
+  }
+}
+
+Answerdf <- Day7input %>%
+  mutate(Result = mapply(testOperators, TestVal, Numbers)) %>%
+  filter(Result == TRUE)
+
+Answer <- sum(as.numeric(Answerdf$TestVal))
+Answer
+
+```
