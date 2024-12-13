@@ -1,0 +1,62 @@
+---
+title: "AoC 2024 - Day 10"
+author: "Paige Remde"
+date: "2024-12-10"
+output: html_document
+---
+
+```{r, message = FALSE, warning = FALSE}
+
+#Part 1----
+
+library(tidyverse)
+
+Day11input <- scan("day11.txt")
+
+blinks <- 0
+total <- 75
+done <- FALSE
+
+while (blinks < total) {
+  nstones <- length(Day11input)
+  i <- 1
+  print(paste("blink number", blinks))
+  print(paste(nstones, "stones"))
+  while (i <= nstones){
+    stone <- Day11input[i]
+    if (stone == 0) {
+      #print(paste(stone, "is now 1"))
+      Day11input[i] <- 1
+      done <- TRUE
+    }
+    if ((nchar(stone) %% 2) == 0) {
+      #print(paste(stone, "is split"))
+      firstnew <- as.numeric(substr(stone, start = 1, stop = ceiling(nchar(stone)/2)))
+      secondnew <- as.numeric(substr(stone, start = (nchar(stone)/2) +1, stop = nchar(stone)))
+      Day11input[i] <- firstnew
+      Day11input <- append(Day11input, values = secondnew, after = i)
+      nstones <- nstones + 1
+      i <- i + 1
+      firstnew <- NULL
+      secondnew <- NULL
+      done <- TRUE
+    }
+    if (done == FALSE) {
+      #print(paste(stone, "is multiplied"))
+      Day11input[i] <- as.numeric(2024 * stone)
+      done <- TRUE
+    }
+    done <- FALSE
+    i = i +1
+  }
+  blinks <- blinks +1
+}
+
+answer2 <- length(Day11input)
+
+answer1
+
+asnwer2
+
+```
+
